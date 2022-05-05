@@ -8,8 +8,8 @@
   "policyThreshold": 60,
   "envParams": {},
   "customLogs": "stdout",
-  "dataBaseName": "blog",
+  "dataBaseName": "csc-music",
   "executeSQLs": [
-    "CREATE DATABASE IF NOT EXISTS blog;"
+    "CREATE DATABASE IF NOT EXISTS csc-music;"
   ]
 }
