@@ -1,21 +1,25 @@
 package com.example.cscmusic.service.impl;
 
 import com.example.cscmusic.Mapper.UserMapper;
-import com.example.cscmusic.dto.UserCreateDto;
+import com.example.cscmusic.dto.UserCreateRequest;
 import com.example.cscmusic.dto.UserDto;
+import com.example.cscmusic.dto.UserUpdateRequest;
 import com.example.cscmusic.entity.User;
 import com.example.cscmusic.exception.BizException;
 import com.example.cscmusic.exception.ExceptionType;
 import com.example.cscmusic.repository.UserRepository;
 import com.example.cscmusic.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+/**
+ * @author caoshichuang
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -25,30 +29,24 @@ public class UserServiceImpl implements UserService {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    public void setRepository(UserRepository repository) {
+    private void setRepository(UserRepository repository) {
         this.repository = repository;
     }
 
     @Autowired
-    public void setUserMapper(UserMapper userMapper) {
+    private void setUserMapper(UserMapper userMapper) {
         this.userMapper = userMapper;
     }
 
     @Autowired
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+    private void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public List<UserDto> list() {
-        return repository.findAll()
-                .stream().map(userMapper::toDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public UserDto create(UserCreateDto userCreateDto) {
-        CheckUserName(userCreateDto.getUsername());
-        User user = userMapper.createEntity(userCreateDto);
+    public UserDto create(UserCreateRequest userCreateRequest) {
+        checkUserName(userCreateRequest.getUsername());
+        User user = userMapper.createEntity(userCreateRequest);
         user.setPassword(passwordEncoder.encode(user.getPassword())); // 对传入的密码进行加密
         return userMapper.toDto(repository.save(user));
     }
@@ -62,7 +60,42 @@ public class UserServiceImpl implements UserService {
         return user.get();
     }
 
-    private void CheckUserName(String username) {
+    @Override
+    public UserDto get(String id) {
+        //TODO:重构代码
+        Optional<User> user = repository.findById(id);
+        if (!user.isPresent()) {
+            throw new BizException(ExceptionType.USER_NOT_FOUND);
+        }
+        return userMapper.toDto(user.get());
+    }
+
+    @Override
+    public UserDto update(String id, UserUpdateRequest userUpdateRequest) {
+        //TODO:重构代码
+        Optional<User> user = repository.findById(id);
+        if (!user.isPresent()) {
+            throw new BizException(ExceptionType.USER_NOT_FOUND);
+        }
+        return userMapper.toDto(repository.save(userMapper.updateEntity(user.get(), userUpdateRequest)));
+    }
+
+    @Override
+    public void delete(String id) {
+        //TODO:重构代码
+        Optional<User> user = repository.findById(id);
+        if (!user.isPresent()) {
+            throw new BizException(ExceptionType.USER_NOT_FOUND);
+        }
+        repository.delete(user.get());
+    }
+
+    @Override
+    public Page<UserDto> search(Pageable page) {
+        return repository.findAll(page).map(userMapper::toDto);
+    }
+
+    private void checkUserName(String username) {
         Optional<User> user = repository.findByUsername(username);
         if (user.isPresent()) {
             throw new BizException(ExceptionType.USER_NAME_DUPLICATE);
