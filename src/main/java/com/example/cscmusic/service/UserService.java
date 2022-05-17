@@ -1,17 +1,28 @@
 package com.example.cscmusic.service;
 
-import com.example.cscmusic.dto.UserCreateDto;
+import com.example.cscmusic.dto.UserCreateRequest;
 import com.example.cscmusic.dto.UserDto;
+import com.example.cscmusic.dto.UserUpdateRequest;
 import com.example.cscmusic.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import java.util.List;
-
+/**
+ * @author caoshichuang
+ */
 public interface UserService extends UserDetailsService {
-    List<UserDto> list();
 
-    UserDto create(UserCreateDto userCreateDto);
+    UserDto create(UserCreateRequest userCreateRequest);
 
     @Override
     User loadUserByUsername(String username);
+
+    UserDto get(String id);
+
+    UserDto update(String id, UserUpdateRequest userUpdateRequest);
+
+    void delete(String id);
+
+    Page<UserDto> search(Pageable pageable);
 }

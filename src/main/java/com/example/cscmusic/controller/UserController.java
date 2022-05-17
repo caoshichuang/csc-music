@@ -1,17 +1,24 @@
 package com.example.cscmusic.controller;
 
 import com.example.cscmusic.Mapper.UserMapper;
-import com.example.cscmusic.dto.UserCreateDto;
+import com.example.cscmusic.dto.UserCreateRequest;
+import com.example.cscmusic.dto.UserUpdateRequest;
 import com.example.cscmusic.service.UserService;
 import com.example.cscmusic.vo.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+/**
+ * @author caoshichuang
+ */
 @RestController
 @RequestMapping("/users")
+@CrossOrigin
 public class UserController {
 
     UserService userService;
@@ -27,14 +34,29 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
+    @GetMapping("/{id}")
+    UserVo get(@PathVariable String id) {
+        return userMapper.toVo(userService.get(id));
+    }
+
+    @PutMapping("/{id}")
+    UserVo update(@PathVariable String id, @Validated @RequestBody UserUpdateRequest userUpdateRequest) {
+        return userMapper.toVo(userService.update(id, userUpdateRequest));
+    }
+
+    @DeleteMapping("/{id}")
+    void delete(@PathVariable String id) {
+        userService.delete(id);
+    }
+
     @GetMapping("/")
-    List<UserVo> list() {
-        return userService.list()
-                .stream().map(userMapper::toVo).collect(Collectors.toList());
+    Page<UserVo> search(@PageableDefault(sort = {"createdTime"}, direction = Sort.Direction.ASC) Pageable pagebale) {
+        return userService.search(pagebale).map(userMapper::toVo);
     }
 
     @PostMapping("/")
-    UserVo create(@RequestBody UserCreateDto userCreateDto){
-        return userMapper.toVo(userService.create(userCreateDto));
+    UserVo create(@Validated @RequestBody UserCreateRequest userCreateRequest) {
+        return userMapper.toVo(userService.create(userCreateRequest));
     }
+
 }

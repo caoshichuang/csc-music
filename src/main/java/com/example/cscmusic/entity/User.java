@@ -2,6 +2,7 @@ package com.example.cscmusic.entity;
 
 import com.example.cscmusic.enums.Gender;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -10,6 +11,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author caoshichuang
+ */
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 public class User extends AbstractEntity implements UserDetails {
@@ -18,7 +23,6 @@ public class User extends AbstractEntity implements UserDetails {
 
     private String nickname;
 
-    // 绑定表
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
