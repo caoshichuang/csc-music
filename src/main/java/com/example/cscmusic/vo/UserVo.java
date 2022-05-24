@@ -1,5 +1,6 @@
 package com.example.cscmusic.vo;
 
+import com.example.cscmusic.enums.Gender;
 import lombok.Data;
 
 import java.util.List;
@@ -7,11 +8,17 @@ import java.util.List;
 @Data
 public class UserVo {
 
-    private String id;
+  private String id;
 
-    private String username;
+  private String username;
 
-    private String nickname;
+  private String nickname;
 
-    private List<RoleVo> Roles;
+  private Gender gender;
+
+  private Boolean locked;
+
+  private Boolean enabled;
+
+  private List<RoleVo> Roles;
 }
