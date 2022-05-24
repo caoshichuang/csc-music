@@ -1,5 +1,6 @@
 package com.example.cscmusic.service;
 
+import com.example.cscmusic.dto.TokenCreateRequest;
 import com.example.cscmusic.dto.UserCreateRequest;
 import com.example.cscmusic.dto.UserDto;
 import com.example.cscmusic.dto.UserUpdateRequest;
@@ -13,16 +14,20 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  */
 public interface UserService extends UserDetailsService {
 
-    UserDto create(UserCreateRequest userCreateRequest);
+  UserDto create(UserCreateRequest userCreateRequest);
 
-    @Override
-    User loadUserByUsername(String username);
+  @Override
+  User loadUserByUsername(String username);
 
-    UserDto get(String id);
+  UserDto get(String id);
 
-    UserDto update(String id, UserUpdateRequest userUpdateRequest);
+  UserDto update(String id, UserUpdateRequest userUpdateRequest);
 
-    void delete(String id);
+  void delete(String id);
 
-    Page<UserDto> search(Pageable pageable);
+  Page<UserDto> search(Pageable pageable);
+
+  String createToken(TokenCreateRequest tokenCreateRequest);
+
+  UserDto getCurrentUser();
 }

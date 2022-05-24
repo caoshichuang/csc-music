@@ -5,6 +5,8 @@ import com.example.cscmusic.dto.UserCreateRequest;
 import com.example.cscmusic.dto.UserUpdateRequest;
 import com.example.cscmusic.service.UserService;
 import com.example.cscmusic.vo.UserVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,44 +21,55 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 @CrossOrigin
+@Api(tags = "用户")
 public class UserController {
 
-    UserService userService;
-    UserMapper userMapper;
+  UserService userService;
+  UserMapper userMapper;
 
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
+  @GetMapping("/{id}")
+  UserVo get(@PathVariable String id) {
+    return userMapper.toVo(userService.get(id));
+  }
 
-    @Autowired
-    public void setUserMapper(UserMapper userMapper) {
-        this.userMapper = userMapper;
-    }
+  @PutMapping("/{id}")
+  UserVo update(
+      @PathVariable String id, @Validated @RequestBody UserUpdateRequest userUpdateRequest) {
+    return userMapper.toVo(userService.update(id, userUpdateRequest));
+  }
 
-    @GetMapping("/{id}")
-    UserVo get(@PathVariable String id) {
-        return userMapper.toVo(userService.get(id));
-    }
+  @DeleteMapping("/{id}")
+  void delete(@PathVariable String id) {
+    userService.delete(id);
+  }
 
-    @PutMapping("/{id}")
-    UserVo update(@PathVariable String id, @Validated @RequestBody UserUpdateRequest userUpdateRequest) {
-        return userMapper.toVo(userService.update(id, userUpdateRequest));
-    }
+  @GetMapping
+  @ApiOperation("用户检索")
+  Page<UserVo> search(
+      @PageableDefault(
+              sort = {"createdTime"},
+              direction = Sort.Direction.ASC)
+          Pageable pagebale) {
+    return userService.search(pagebale).map(userMapper::toVo);
+  }
 
-    @DeleteMapping("/{id}")
-    void delete(@PathVariable String id) {
-        userService.delete(id);
-    }
+  @PostMapping
+  UserVo create(@Validated @RequestBody UserCreateRequest userCreateRequest) {
+    return userMapper.toVo(userService.create(userCreateRequest));
+  }
 
-    @GetMapping("/")
-    Page<UserVo> search(@PageableDefault(sort = {"createdTime"}, direction = Sort.Direction.ASC) Pageable pagebale) {
-        return userService.search(pagebale).map(userMapper::toVo);
-    }
+  @GetMapping("/me")
+  UserVo me() {
+    return userMapper.toVo(userService.getCurrentUser());
+  }
 
-    @PostMapping("/")
-    UserVo create(@Validated @RequestBody UserCreateRequest userCreateRequest) {
-        return userMapper.toVo(userService.create(userCreateRequest));
-    }
+  @Autowired
+  private void setUserService(UserService userService) {
+    this.userService = userService;
+  }
 
+  @Autowired
+  private void setUserMapper(UserMapper userMapper) {
+    this.userMapper = userMapper;
+  }
 }
